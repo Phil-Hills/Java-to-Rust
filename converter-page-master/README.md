@@ -1,33 +1,50 @@
-# java-converter
+A Web application that converts Java-Code to Rust. By adding/converting Java to Rust frees up memory because there is no cache key eviction. Java has to do a lot of work to dertermine what memory is free, which can slow the program down. Rust is extremely fast and memorty efficient: with no runtime or garbage collector, it can power performance-critical services, run on embedded deices, and easily integrate with other languages. 
+With the safety featrures pre-built into Rust is what makes this conversion feasible, because there is no Garbage Collector(GC)in Rust. 
 
-This crude web-application can be a small help or not so small help when trying to port Java-Code to Rust.
-The safety features in Rust make it feasible, even if there is no GC in Rust. So if trying to provide libraries for Rust, why
-not look into the great open source code provided for java.
 
-The author is a beginner in rust, so the generated code will sometimes be kind of "unrusty".
-At the moment this server is used in the porting of the apache math3 maven artefact.
+## How to use
 
-## How to use it.
 
-There are two ways:
-<a href=https://jrconverter.appspot.com/index.jsp>link</a> leads to a small vm running this war.
+# Crate maven_toolbox
 
-or use maven to build a snapshot and deploy the war-file into a J2EE-Container.
 
-The default Web-Side shows two Textfields
-The first can be edited and the java-text can be pasted there. After pressing the button
-the converted code appears in the second Textfield.
+use maven_toolbox::{default_impl::*, *};
 
+// the artifact's GAV
+let artifact = ArtifactFqn::pom(
+    "com.walmartlabs.concord.plugins.basic",
+    "smtp-tasks",
+    "1.76.1",
+);
+
+let mut resolver = Resolver::default();
+
+// default implementations, you can plug in your own
+let url_fetcher = DefaultUrlFetcher {};
+let pom_parser = DefaultPomParser {};
+
+let project = resolver
+    .build_effective_pom(&artifact, &url_fetcher, &pom_parser)
+    .unwrap();
+
+let project = resolver
+    .build_effective_pom(&artifact, &url_fetcher, &pom_parser)
+    .unwrap();
+    
+
+build a snapshot and deploy the war-file into a J2EE-Container.
+
+jar -cvf projectname.war *  
+
+The default Web-Side shows 2 text-fields
+The first text-field is for editing and (java-text can be pasted there). 
+The second text-field will pop up showing the conversion from Java to Rust
+
+Note:
 The java-code can be a class, a part of a class or a simple statement.
-The code must be (java-)syntactically correct. The result quite certainly will not
- be (rust-)syntactically correct ;-)
-``
+The code must be (java-)syntactically correct. The conversion is not perfect and will require some editing. " A work in Progress ".
 
-## functions
-
-The server mainly tries to support in dumb formatting changes which are always the same.
-
-* What has been implemented and might be of use:
+### functions
 
     * conversion of **declarations** Java: _"Type name = init"_ to _"let name: Type = init"_
     * **conversion of arrays** type[] to vectors
@@ -46,25 +63,8 @@ The server mainly tries to support in dumb formatting changes which are always t
     * Java methods with declared **throws** return Result&lt;_,Rc&lt;Exception&gt;&gt; used
       rust code can be found in directory rust.
 
-* experimental
-    * conversion of **throw** to break loop with label
 
-* very experimental certainly wrongly done:
-    * **super-classes** become instance-variables
+Note:
+    * javadoc-comments do not convert
 
-* what does not change
-    * javadoc-comments
 
-# License
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
